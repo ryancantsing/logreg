@@ -26,19 +26,19 @@ class UserManager(models.Manager):
     def validate_registration(self, post_data):
         errors = []
         # check length of name fields
-        if len(post_data['first_name']) < 2 or len(post_data['last_name']) < 2:
+        if len(post_data['name']) < 2 or len(post_data['alias']) < 2:
             errors.append("name fields must be at least 3 characters")
         # check length of name password
         if len(post_data['password']) < 8:
             errors.append("password must be at least 8 characters")
         # check name fields for letter characters            
-        if not re.match(NAME_REGEX, post_data['first_name']) or not re.match(NAME_REGEX, post_data['last_name']):
+        if not re.match(NAME_REGEX, post_data['name']) or not re.match(NAME_REGEX, post_data['alias']):
             errors.append('name fields must be letter characters only')
         # check emailness of email
         if not re.match(EMAIL_REGEX, post_data['email']):
             errors.append("invalid email")
         # check uniqueness of email
-        if len(User.objects.filter(email=post_data['email'])) > 0:
+        if len(Users.objects.filter(email=post_data['email'])) > 0:
             errors.append("email already in use")
         # check password == password_confirm
         if post_data['password'] != post_data['password_confirm']:
@@ -50,8 +50,8 @@ class UserManager(models.Manager):
             hashed = bcrypt.hashpw((post_data['password'].encode()), bcrypt.gensalt(5))
 
             new_user = self.create(
-                first_name=post_data['first_name'],
-                last_name=post_data['last_name'],
+                name=post_data['name'],
+                alias=post_data['alias'],
                 email=post_data['email'],
                 password=hashed
             )
@@ -59,11 +59,24 @@ class UserManager(models.Manager):
         return errors
 
 
-class User(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+class Users(models.Model):
+    name = models.CharField(max_length=255)
+    alias = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
+    date_of_birth = models.DateField(null=True)
     objects = UserManager()
     def __str__(self):
         return self.email
+class PokeManager(models.Manager):
+    def validate_Poke(self, post_data):
+        new_poke = self.create(
+            poker=request.session['user_id'],
+            poked=post_data['<user_id>']
+    )
+class Poke(models.Model):  
+    poker = models.ForeignKey(Users, related_name= "pokegiver")
+    poked = models.ForeignKey(Users, related_name= "pokegotten")
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)
+    objects= PokeManager()

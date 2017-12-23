@@ -17,12 +17,12 @@
         <form action="/register" method="POST">
             {% csrf_token %}
             <div class="form-group">
-                <label for="first_name">First Name</label>
-                <input type="text" name="first_name">
+                <label for="name">Name</label>
+                <input type="text" name="name">
             </div>
             <div class="form-group">
-                <label for="last_name">Last Name</label>
-                <input type="text" name="last_name">
+                <label for="alias">Alias</label>
+                <input type="text" name="alias">
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
@@ -35,6 +35,10 @@
             <div class="form-group">
                 <label for="password_confirm">Confirm Password</label>
                 <input type="password" name="password_confirm">
+            </div>
+            <div class="form-group">
+                    <label for="date_of_birth">Date of Birth</label>
+                    <input type="date" name="date_of_birth">
             </div>
             <input type="submit" value='Register'>
         </form>

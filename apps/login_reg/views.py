@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from .models import User
+from .models import Users, Poke
 from django.shortcuts import render, redirect
 from django.contrib import messages
 
@@ -9,7 +9,7 @@ def index(request):
     return render(request, 'login_reg/index.html')
 
 def register(request):
-    result = User.objects.validate_registration(request.POST)
+    result = Users.objects.validate_registration(request.POST)
     if type(result) == list:
         for err in result:
             messages.error(request, err)
@@ -19,14 +19,25 @@ def register(request):
     return redirect('/success')
 
 def login(request):
-    result = User.objects.validate_login(request.POST)
+    result = Users.objects.validate_login(request.POST)
     if type(result) == list:
         for err in result:
             messages.error(request, err)
         return redirect('/')
     request.session['user_id'] = result.id
-    messages.success(request, "Successfully logged in!")
-    return redirect('/success')
+    request.session['alias'] = result.alias
+    try:
+        request.session['recently_poked']
+    except KeyError:
+        request.session['recently_poked'] = 0
+    context = {
+        'users' : Users.objects.all()
+    }
+    return render(request, 'login_reg/pokes.html', context)
+
+def logout(request):
+    del request.session['user_id']
+    return redirect('/')
 
 def success(request):
     try:
@@ -34,6 +45,17 @@ def success(request):
     except KeyError:
         return redirect('/')
     context = {
-        'user': User.objects.get(id=request.session['user_id'])
+        'user': Users.objects.get(id=request.session['user_id'])
     }
     return render(request, 'login_reg/success.html', context)
+def pokes(request):
+    context = {
+        'users' : Users.objects.all(),
+        'get_poked_count' : Poke.objects.get().count()
+
+    }
+    return render(request, 'login_reg/pokes.html', context)
+def poke(request, id):
+    poker = Users.objects.get(id=request.session['user_id'])
+    poked = Users.objects.get(id=id)
+    Poke.objects.create(poker=poker, poked=poked)

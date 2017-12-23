@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="header">
+        <p>Welcome, {{request.session.alias }}</p>
+        <p>{{request.session.recently_poked}} people poked you!</p>
+    </div>
+    <div id="logoutButton">
+        <a href="/logout">Logout</a>
+    </div>
+    <div id="topThreePokes">
+        top 3 pokes
+    </div>
+    <p>People you may want to poke</p>
+    <div="pokeTable">
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Alias</th>
+                <th>Email Address</th>
+                <th>Poke History</th>
+                <th>Action</th>
+            </tr>
+            {% for user in users %}
+            <tr> 
+                <td>{{ user.name }}</td>
+                <td>{{ user.alias }}</td>
+                <td>{{ user.email }}</td>
+                {% for poke in pokes %}
+                <td>{poke.count}.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
